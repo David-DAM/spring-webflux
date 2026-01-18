@@ -1,6 +1,6 @@
 package com.davinchicoder.spring.webflux.domain;
 
-public enum FraudDecision {
+public enum TransactionStatus {
     REJECT,
     APPROVE
 }

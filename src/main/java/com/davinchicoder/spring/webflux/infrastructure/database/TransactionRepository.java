@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
+
 @Repository
 @RequiredArgsConstructor
 public class TransactionRepository {
@@ -16,6 +18,10 @@ public class TransactionRepository {
         TransactionEntity entity = mapper.toEntity(transaction);
         Mono<TransactionEntity> saved = repository.save(entity);
         return saved.map(mapper::toDomain);
+    }
+
+    public Mono<Long> countTransactionsLastSeconds(String userId, long secondsAgo) {
+        return repository.countByUserIdAndCreatedAtBefore(userId, Instant.now().minusSeconds(secondsAgo));
     }
 
 

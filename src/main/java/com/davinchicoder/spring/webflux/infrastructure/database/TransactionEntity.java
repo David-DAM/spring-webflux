@@ -1,5 +1,6 @@
 package com.davinchicoder.spring.webflux.infrastructure.database;
 
+import com.davinchicoder.spring.webflux.domain.TransactionStatus;
 import lombok.Data;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -15,7 +16,8 @@ public class TransactionEntity {
     private String currency;
     private String country;
     private String deviceId;
-    private String type;
+    private TransactionStatus status;
+    private int score;
     private Instant createdAt;
 
 }
