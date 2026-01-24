@@ -1,6 +1,6 @@
 package com.davinchicoder.spring.webflux.infrastructure.api;
 
-import com.davinchicoder.spring.webflux.application.FraudService;
+import com.davinchicoder.spring.webflux.application.mediator.Mediator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,13 +13,13 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class TransactionController {
 
-    private final FraudService fraudService;
+    private final Mediator mediator;
     private final TransactionMapper mapper;
 
     @PostMapping()
     public Mono<FraudResultDto> handle(@RequestBody Mono<TransactionDto> tx) {
-        return tx.map(mapper::toDomain)
-                .flatMap(fraudService::process)
+        return tx.map(mapper::toNewTransactionRequest)
+                .flatMap(mediator::dispatch)
                 .map(mapper::toFraudResultDto);
     }
 }

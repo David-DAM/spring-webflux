@@ -19,7 +19,7 @@ public class VelocityRuleChecker implements RuleChecker {
 
     @Override
     public Mono<RuleResult> check(Transaction tx) {
-        return repository.countTransactionsLastSeconds(tx.getUserId(), TRANSACTION_TIME_WINDOW_SECONDS)
+        return repository.countByUserIdAndCreatedBefore(tx.getUserId(), TRANSACTION_TIME_WINDOW_SECONDS)
                 .map(count -> {
                             if (count > MAX_TRANSACTION_COUNT) {
                                 return new RuleResult(VelocityRuleChecker.class.getSimpleName(), 60);

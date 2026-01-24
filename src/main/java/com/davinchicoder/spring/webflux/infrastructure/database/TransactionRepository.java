@@ -1,6 +1,7 @@
 package com.davinchicoder.spring.webflux.infrastructure.database;
 
 import com.davinchicoder.spring.webflux.domain.Transaction;
+import com.davinchicoder.spring.webflux.domain.TransactionStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
@@ -20,8 +21,16 @@ public class TransactionRepository {
         return saved.map(mapper::toDomain);
     }
 
-    public Mono<Long> countTransactionsLastSeconds(String userId, long secondsAgo) {
+    public Mono<Long> countByUserIdAndCreatedBefore(String userId, long secondsAgo) {
         return repository.countByUserIdAndCreatedAtBefore(userId, Instant.now().minusSeconds(secondsAgo));
+    }
+
+    public Mono<Long> countByUserIdAndDeviceIdAndStatusRejected(String userId, String deviceId) {
+        return repository.countByUserIdAndDeviceIdAndStatus(userId, deviceId, TransactionStatus.REJECT);
+    }
+
+    public Mono<Long> countByUserIdAndCountryAndStatusRejected(String userId, String country) {
+        return repository.countByUserIdAndCountryAndStatus(userId, country, TransactionStatus.REJECT);
     }
 
 

@@ -1,5 +1,6 @@
-package com.davinchicoder.spring.webflux.application;
+package com.davinchicoder.spring.webflux.application.new_transaction;
 
+import com.davinchicoder.spring.webflux.application.mediator.RequestHandler;
 import com.davinchicoder.spring.webflux.application.rules.RuleChecker;
 import com.davinchicoder.spring.webflux.domain.FraudResult;
 import com.davinchicoder.spring.webflux.domain.RuleResult;
@@ -13,12 +14,14 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class FraudService {
+public class NewTransactionHandler implements RequestHandler<NewTransactionRequest, NewTransactionResponse> {
 
     public static final int MAX_CONCURRENT_RULE_CHECKS = 4;
     public static final int FRAUD_THRESHOLD = 70;
@@ -26,7 +29,18 @@ public class FraudService {
     private final EventPublisher eventPublisher;
     private final List<RuleChecker> rules;
 
-    public Mono<FraudResult> process(Transaction tx) {
+    @Override
+    public Mono<NewTransactionResponse> handle(NewTransactionRequest request) {
+
+        Transaction tx = Transaction.builder()
+                .id(UUID.randomUUID().toString())
+                .userId(request.getUserId())
+                .deviceId(request.getDeviceId())
+                .amount(request.getAmount())
+                .currency(request.getCurrency())
+                .country(request.getCountry())
+                .createdAt(Instant.now())
+                .build();
 
         return Flux.fromIterable(rules)
                 .flatMap(rule -> rule.check(tx), MAX_CONCURRENT_RULE_CHECKS)
@@ -38,7 +52,13 @@ public class FraudService {
                         triggerEventAsync(result)
                                 .thenReturn(result)
                 )
+                .map(fraudResult -> new NewTransactionResponse(fraudResult.transactionId(), fraudResult.status(), fraudResult.score()))
                 .onErrorResume(this::handleFailure);
+    }
+
+    @Override
+    public Class<NewTransactionRequest> getRequestType() {
+        return NewTransactionRequest.class;
     }
 
     private Mono<Transaction> aggregate(Transaction transaction, List<RuleResult> results) {
@@ -63,10 +83,8 @@ public class FraudService {
     }
 
 
-    private Mono<FraudResult> handleFailure(Throwable ex) {
+    private Mono<NewTransactionResponse> handleFailure(Throwable ex) {
         log.error("Error processing transaction", ex);
         return Mono.error(ex);
     }
-
-
 }
