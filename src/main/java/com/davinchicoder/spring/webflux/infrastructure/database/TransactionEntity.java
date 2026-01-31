@@ -2,6 +2,7 @@ package com.davinchicoder.spring.webflux.infrastructure.database;
 
 import com.davinchicoder.spring.webflux.domain.TransactionStatus;
 import lombok.Data;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.math.BigDecimal;
@@ -11,6 +12,7 @@ import java.time.Instant;
 @Data
 public class TransactionEntity {
 
+    @Id
     private String id;
     private String userId;
     private BigDecimal amount;

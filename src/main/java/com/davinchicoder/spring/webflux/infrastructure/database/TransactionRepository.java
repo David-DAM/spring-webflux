@@ -21,6 +21,14 @@ public class TransactionRepository {
         return saved.map(mapper::toDomain);
     }
 
+    public Mono<Transaction> findById(String id) {
+        return repository.findById(id).map(mapper::toDomain);
+    }
+
+    public Mono<Void> deleteAll() {
+        return repository.deleteAll();
+    }
+
     public Mono<Long> countByUserIdAndCreatedBefore(String userId, long secondsAgo) {
         return repository.countByUserIdAndCreatedAtBefore(userId, Instant.now().minusSeconds(secondsAgo));
     }
